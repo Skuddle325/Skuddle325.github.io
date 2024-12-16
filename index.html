@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Princess Word Scramble!</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      margin: 50px auto;
+      padding: 20px;
+      max-width: 600px;
+      background: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    h1 {
+      color: #333;
+    }
+    .scrambled-word {
+      font-size: 1.5em;
+      margin: 20px 0;
+      color: #555;
+    }
+    .score {
+      margin: 10px 0;
+      font-size: 1.2em;
+      color: #28a745;
+    }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #555;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 1em;
+      width: 70%;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .skip-btn {
+      background-color: #ffc107;
+      margin-left: 10px;
+    }
+    .skip-btn:hover {
+      background-color: #e0a800;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Word Scramble for my Princess!</h1>
+    <p class="score">Score: <span id="score">0</span></p>
+    <p>Unscramble this word:</p>
+    <p class="scrambled-word" id="scrambled-word">Loading...</p>
+    <input type="text" id="user-guess" placeholder="Your guess here" />
+    <button id="submit-btn">Submit</button>
+    <button id="skip-btn" class="skip-btn">Skip</button>
+    <p class="result" id="result"></p>
+  </div>
+
+  <script>
+    // Word list
+    const wordList = ["princess", "cooking", "daddy", "master", "passionate", "darling", "romantic", "perfect", "reading" , "shopping" ,"cute" , "adorable" , "sweet", "heart" , "sensual" , "pretty", "gorgeous" , "beautiful" , "angelic" , "breathtaking" , "polite" , "stunning" , "special" , "fun" , "amazing" , "sunshine" , "bright" , "charming" , "flawless" , "sweet-girl" , "daddys-girl" , "good-girl" , "my-girl" , "Impressive" , "Smart" , "Funny"];
+    let unusedWords = [...wordList]; // Copy of the word list to track unused words
+    let currentWord = "";
+    let scrambledWord = "";
+
+    // Initialize score from localStorage or start at 0
+    let score = parseInt(localStorage.getItem("score")) || 0;
+
+    // DOM elements
+    const scrambledWordElement = document.getElementById("scrambled-word");
+    const userGuessElement = document.getElementById("user-guess");
+    const resultElement = document.getElementById("result");
+    const scoreElement = document.getElementById("score");
+    const submitButton = document.getElementById("submit-btn");
+    const skipButton = document.getElementById("skip-btn");
+
+    // Update score on the page
+    scoreElement.textContent = score;
+
+    // Function to scramble a word
+    function scrambleWord(word) {
+      return word.split("").sort(() => Math.random() - 0.5).join("");
+    }
+
+    // Function to set a new word
+    function setNewWord() {
+      if (unusedWords.length === 0) {
+        // Reset unused words if all have been used
+        unusedWords = [...wordList];
+        alert("All words have been used! Resetting the word list.");
+      }
+
+      // Pick a random word from the unused words
+      const randomIndex = Math.floor(Math.random() * unusedWords.length);
+      currentWord = unusedWords.splice(randomIndex, 1)[0]; // Remove the selected word from unusedWords
+      scrambledWord = scrambleWord(currentWord);
+      scrambledWordElement.textContent = scrambledWord;
+
+      // Clear input and result
+      userGuessElement.value = "";
+      resultElement.textContent = "";
+    }
+
+    // Function to handle the submit action
+    function handleSubmit() {
+      const userGuess = userGuessElement.value.trim().toLowerCase();
+
+      if (userGuess === currentWord) {
+        resultElement.textContent = "Correct! Great job.";
+        resultElement.style.color = "#28a745";
+        score++;
+        localStorage.setItem("score", score); // Save score to localStorage
+        scoreElement.textContent = score;
+        setTimeout(setNewWord, 1500); // Delay before showing the next word
+      } else {
+        resultElement.textContent = "Incorrect. Try again.";
+        resultElement.style.color = "#dc3545";
+      }
+
+      userGuessElement.value = ""; // Clear input for the next attempt
+      userGuessElement.focus(); // Keep focus on the input field
+    }
+
+    // Function to handle the skip action
+    function handleSkip() {
+      // Move the current word to the end of the unusedWords array
+      unusedWords.push(currentWord);
+      setNewWord(); // Load the next word
+    }
+
+    // Add event listener to the submit button
+    submitButton.addEventListener("click", handleSubmit);
+
+    // Add event listener to the skip button
+    skipButton.addEventListener("click", handleSkip);
+
+    // Add "Enter" key press support for form submission
+    userGuessElement.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        handleSubmit();
+      }
+    });
+
+    // Initialize the game
+    setNewWord();
+  </script>
+</body>
+</html>
